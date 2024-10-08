@@ -1,27 +1,30 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import zipfile
+import shutil
 import os
 
 # Combine split zip files into a single zip file
 def combine_split_zips(output_zipfile, *input_parts):
-    with open(output_zipfile, 'wb') as output_file:
-        for part in input_parts:
-            if not os.path.exists(part):
-                st.error(f"Error: The file {part} does not exist.")
-                return None
-            with open(part, 'rb') as part_file:
-                output_file.write(part_file.read())
-    return output_zipfile
+    try:
+        with open(output_zipfile, 'wb') as output_file:
+            for part in input_parts:
+                if not os.path.exists(part):
+                    st.error(f"Error: The file {part} does not exist.")
+                    return None
+                with open(part, 'rb') as part_file:
+                    shutil.copyfileobj(part_file, output_file)  # Combines the parts
+        return output_zipfile
+    except Exception as e:
+        st.error(f"Error while combining zip parts: {str(e)}")
+        return None
 
-# Unarchive the models
+# Extract the model from the zip
 def extract_model_from_zip(zipfile_name, model_filename):
     try:
-        with zipfile.ZipFile(zipfile_name, 'r') as zip_ref:
-            zip_ref.extractall()
+        shutil.unpack_archive(zipfile_name, '.')  # Extracts the zip file into the current directory
         if not os.path.exists(model_filename):
-            st.error(f"Error: {model_filename} was not found in the extracted zip.")
+            st.error(f"Error: {model_filename} was not found after extracting.")
             return None
         return model_filename
     except Exception as e:
