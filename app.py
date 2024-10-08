@@ -19,12 +19,22 @@ def combine_split_zips(output_zipfile, *input_parts):
         st.error(f"Error while combining zip parts: {str(e)}")
         return None
 
-# Extract the model from the zip
+# Extract the model from the zip and check if the file exists
 def extract_model_from_zip(zipfile_name, model_filename):
     try:
         shutil.unpack_archive(zipfile_name, '.')  # Extracts the zip file into the current directory
+        
+        # Debug: List all extracted files to ensure the model is found
+        extracted_files = []
+        for root, dirs, files in os.walk('.'):
+            for file in files:
+                extracted_files.append(os.path.join(root, file))
+        st.write("Extracted files:")
+        st.write(extracted_files)
+
+        # Check if the model file exists after extraction
         if not os.path.exists(model_filename):
-            st.error(f"Error: {model_filename} was not found after extracting.")
+            st.error(f"Error: {model_filename} was not found after extracting. Please check the extracted files.")
             return None
         return model_filename
     except Exception as e:
