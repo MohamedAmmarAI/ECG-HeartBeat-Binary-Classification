@@ -2,14 +2,14 @@ import streamlit as st
 import joblib
 import gdown
 import os
-import pickle
 
 # URL of the model file on Google Drive
-MODEL_URL = 'https://drive.google.com/file/d/1WFv8hMFy-xkFBZwmsj10Np1-lSy_31Lk/view?usp=drive_link'  # Replace with actual file ID
+MODEL_URL = 'https://drive.google.com/uc?id=1G9K3-xyz'  # Replace with your actual file ID
 
 # Download the model if not already downloaded
 def download_model():
     model_filename = 'heartbeat_model.pkl'
+    
     if not os.path.exists(model_filename):
         try:
             st.write("Downloading model file from Google Drive...")
@@ -22,6 +22,13 @@ def download_model():
             if file_size < 120:  # Expecting around 123 MB
                 st.error("Error: The model file seems to be incomplete.")
                 return None
+            
+            # Verify if the file starts with a binary header
+            with open(model_filename, 'rb') as f:
+                first_bytes = f.read(4)
+                if first_bytes.startswith(b'<!DO') or first_bytes.startswith(b'<htm'):
+                    st.error("Error: The downloaded file is not a valid model file (looks like HTML).")
+                    return None
             
         except Exception as e:
             st.error(f"Failed to download model: {str(e)}")
