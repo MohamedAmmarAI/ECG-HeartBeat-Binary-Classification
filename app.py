@@ -1,6 +1,9 @@
 import streamlit as st
 import joblib
+import gdown
 import pandas as pd
+import os
+
 
 #URL of the model file on Google Drive
 MODEL_URL = 'https://drive.google.com/file/d/1WFv8hMFy-xkFBZwmsj10Np1-lSy_31Lk/view?usp=drive_link'  # Replace this with your actual file ID
