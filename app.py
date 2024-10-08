@@ -1,77 +1,9 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import shutil
-import os
 
-# Combine split zip files into a single zip file
-def combine_split_zips(output_zipfile, *input_parts):
-    try:
-        with open(output_zipfile, 'wb') as output_file:
-            for part in input_parts:
-                if not os.path.exists(part):
-                    st.error(f"Error: The file {part} does not exist.")
-                    return None
-                with open(part, 'rb') as part_file:
-                    shutil.copyfileobj(part_file, output_file)  # Combines the parts
-        return output_zipfile
-    except Exception as e:
-        st.error(f"Error while combining zip parts: {str(e)}")
-        return None
-
-# Extract the model from the zip and check if the file exists
-def extract_model_from_zip(zipfile_name, model_filename):
-    try:
-        shutil.unpack_archive(zipfile_name, '.')  # Extracts the zip file into the current directory
-        
-        # Debug: List all extracted files to ensure the model is found
-        extracted_files = []
-        for root, dirs, files in os.walk('.'):
-            for file in files:
-                extracted_files.append(os.path.join(root, file))
-        st.write("Extracted files:")
-        st.write(extracted_files)
-
-        # Check if the model file exists after extraction
-        if not os.path.exists(model_filename):
-            st.error(f"Error: {model_filename} was not found after extracting. Please check the extracted files.")
-            return None
-        return model_filename
-    except Exception as e:
-        st.error(f"Error extracting zip file: {str(e)}")
-        return None
-
-# Load the model
-@st.cache_resource
-def load_model():
-    # Combine the split zip files into one zip
-    zipfile_name = combine_split_zips('heartbeat_model.zip', 'heartbeat_model.z01', 'heartbeat_model.z02')
-
-    if zipfile_name is None:
-        st.error("Failed to combine the zip files.")
-        return None
-
-    # Extract the model file from the combined zip
-    model_filename = extract_model_from_zip(zipfile_name, 'heartbeat_model.pkl')
-
-    if model_filename is None:
-        st.error("Failed to extract the model.")
-        return None
-
-    # Load the model using joblib
-    try:
-        model = joblib.load(model_filename)
-        return model
-    except Exception as e:
-        st.error(f"Error loading model: {str(e)}")
-        return None
-
-# Load the model
-model = load_model()
-
-# If the model failed to load, stop the app
-if model is None:
-    st.stop()
+# Load your model (replace with the actual path to your model)
+model = joblib.load('heartbeat_model.pkl')
 
 # Streamlit app title
 st.title("Heartbeat Classification")
@@ -90,6 +22,10 @@ if uploaded_file is not None:
 
     # Clean column names: strip quotes and whitespaces
     input_data.columns = input_data.columns.str.replace('"', '').str.strip()
+
+    # Optionally print the cleaned column names for debugging
+    # st.write("Cleaned Column Names:")
+    # st.write(input_data.columns)
 
     # Check if the DataFrame has the correct number of columns
     if input_data.shape[1] == 100:  # Expecting 100 values
