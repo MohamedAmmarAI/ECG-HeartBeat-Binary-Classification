@@ -2,8 +2,46 @@ import streamlit as st
 import joblib
 import pandas as pd
 
+#URL of the model file on Google Drive
+MODEL_URL = 'https://drive.google.com/file/d/1WFv8hMFy-xkFBZwmsj10Np1-lSy_31Lk/view?usp=drive_link'  # Replace this with your actual file ID
+
+# Download the model if not already downloaded
+def download_model():
+    model_filename = 'heartbeat_model.pkl'
+    if not os.path.exists(model_filename):
+        try:
+            st.write("Downloading model file from Google Drive...")
+            gdown.download(MODEL_URL, model_filename, quiet=False)
+            st.write("Model downloaded successfully.")
+        except Exception as e:
+            st.error(f"Failed to download model: {str(e)}")
+            return None
+    return model_filename
+
+# Load the model
+@st.cache_resource
+def load_model():
+    model_filename = download_model()
+    
+    if model_filename is None or not os.path.exists(model_filename):
+        st.error("Model file not found. Could not load the model.")
+        return None
+
+    try:
+        model = joblib.load(model_filename)
+        return model
+    except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return None
+
+# Load the model
+model = load_model()
+
+# If the model failed to load, stop the app
+if model is None:
+    st.stop()
 # Load your model (replace with the actual path to your model)
-model = joblib.load('heartbeat_model.pkl')
+#model = joblib.load('heartbeat_model.pkl')
 
 # Streamlit app title
 st.title("Heartbeat Classification")
