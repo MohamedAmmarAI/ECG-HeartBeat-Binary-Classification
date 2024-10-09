@@ -1,8 +1,6 @@
 import streamlit as st
 import joblib
-import gdown
-import os
-
+import pandas as pd
 
 # Load your model (replace with the actual path to your model)
 model = joblib.load('heartbeat_model.pkl')
@@ -24,6 +22,10 @@ if uploaded_file is not None:
 
     # Clean column names: strip quotes and whitespaces
     input_data.columns = input_data.columns.str.replace('"', '').str.strip()
+
+    # Optionally print the cleaned column names for debugging
+    # st.write("Cleaned Column Names:")
+    # st.write(input_data.columns)
 
     # Check if the DataFrame has the correct number of columns
     if input_data.shape[1] == 100:  # Expecting 100 values
