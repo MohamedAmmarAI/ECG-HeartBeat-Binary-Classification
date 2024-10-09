@@ -3,69 +3,9 @@ import joblib
 import gdown
 import os
 
-# URL of the model file on Google Drive
-MODEL_URL = 'https://drive.google.com/file/d/1WFv8hMFy-xkFBZwmsj10Np1-lSy_31Lk/view?usp=sharing'  # Replace with your actual file ID
 
-# Download the model if not already downloaded
-def download_model():
-    model_filename = 'heartbeat_model.pkl'
-    
-    if not os.path.exists(model_filename):
-        try:
-            st.write("Downloading model file from Google Drive...")
-            gdown.download(MODEL_URL, model_filename, quiet=False)
-            st.write("Model downloaded successfully.")
-            
-            # Check if the file is fully downloaded (e.g., 123 MB)
-            file_size = os.path.getsize(model_filename) / (1024 * 1024)  # Size in MB
-            st.write(f"Downloaded file size: {file_size:.2f} MB")
-            if file_size < 120:  # Expecting around 123 MB
-                st.error("Error: The model file seems to be incomplete.")
-                return None
-            
-            # Verify if the file starts with a binary header
-            with open(model_filename, 'rb') as f:
-                first_bytes = f.read(4)
-                if first_bytes.startswith(b'<!DO') or first_bytes.startswith(b'<htm'):
-                    st.error("Error: The downloaded file is not a valid model file (looks like HTML).")
-                    return None
-            
-        except Exception as e:
-            st.error(f"Failed to download model: {str(e)}")
-            return None
-    return model_filename
-
-# Load the model
-@st.cache_resource
-def load_model():
-    model_filename = download_model()
-    
-    if model_filename is None or not os.path.exists(model_filename):
-        st.error("Model file not found. Could not load the model.")
-        return None
-
-    try:
-        # Try loading the model with joblib
-        model = joblib.load(model_filename)
-        return model
-    except Exception as e:
-        st.error(f"Error loading model with joblib: {str(e)}")
-        
-        # Fallback to using pickle if joblib fails
-        try:
-            with open(model_filename, 'rb') as f:
-                model = pickle.load(f)
-                return model
-        except Exception as e2:
-            st.error(f"Error loading model with pickle: {str(e2)}")
-            return None
-
-# Load the model
-model = load_model()
-
-# If the model failed to load, stop the app
-if model is None:
-    st.stop()
+# Load your model (replace with the actual path to your model)
+model = joblib.load('heartbeat_model.pkl')
 
 # Streamlit app title
 st.title("Heartbeat Classification")
