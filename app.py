@@ -4,7 +4,7 @@ import gdown
 import os
 
 # URL of the model file on Google Drive
-MODEL_URL = 'https://drive.google.com/uc?id=1G9K3-xyz'  # Replace with your actual file ID
+MODEL_URL = 'https://drive.google.com/file/d/1WFv8hMFy-xkFBZwmsj10Np1-lSy_31Lk/view?usp=sharing'  # Replace with your actual file ID
 
 # Download the model if not already downloaded
 def download_model():
